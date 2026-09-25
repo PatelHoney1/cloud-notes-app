@@ -1,0 +1,476 @@
+/* =========================================
+   DESIGN TOKENS
+========================================= */
+
+:root {
+  --accent: #0d9488;
+  --accent-hover: #0f766e;
+  --accent-2: #8b5cf6;
+  --accent-3: #f43f5e;
+  --bg: #FBF9F2;
+  --panel-bg: #ffffff;
+  --panel-border: #ebe7db;
+  --input-bg: #ffffff;
+  --input-border: #dcdcdc;
+  --text: #2b2b2b;
+  --muted: #6b7280;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+body.dark-mode {
+  --accent: #2dd4bf;
+  --accent-hover: #5eead4;
+  --accent-2: #a78bfa;
+  --accent-3: #fb7185;
+  --bg: #10131a;
+  --panel-bg: #181c25;
+  --panel-border: #2a2f3d;
+  --input-bg: #1f2430;
+  --input-border: #343a4a;
+  --text: #e8eaf0;
+  --muted: #98a1b3;
+  --shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* =========================================
+   ANIMATED BACKGROUND BLOBS
+========================================= */
+
+.bg-blob {
+  position: fixed;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  z-index: -1;
+  pointer-events: none;
+  animation: floatBlob 18s ease-in-out infinite;
+  transition: opacity 0.3s ease;
+}
+
+.blob-1 {
+  top: -120px;
+  left: -100px;
+  background: radial-gradient(circle at 30% 30%, var(--accent), transparent 70%);
+}
+
+.blob-2 {
+  bottom: -140px;
+  right: -120px;
+  background: radial-gradient(circle at 70% 70%, var(--accent-2), transparent 70%);
+  animation-delay: -9s;
+}
+
+body.dark-mode .bg-blob {
+  opacity: 0.22;
+}
+
+@keyframes floatBlob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(40px, -30px) scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-blob { animation: none; }
+}
+
+/* =========================================
+   GLOBAL
+========================================= */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s ease, color 0.3s ease;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.navbar {
+  background: var(--panel-bg) !important;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.header1 {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 800;
+  animation: gradientShift 6s ease infinite;
+  display: inline-block;
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header1 { animation: none; }
+}
+
+h5 {
+  font-weight: 600;
+}
+
+h5.mb-0, .app-panel h5 {
+  color: var(--text);
+}
+
+button {
+  border-radius: 8px !important;
+}
+
+.btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .btn:hover, .btn:active { transition: none; transform: none; }
+}
+
+/* Bootstrap primary -> app accent, so the whole UI reads as one palette */
+.btn-primary {
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+}
+
+.btn-outline-primary {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Inputs */
+.form-control, textarea {
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control::placeholder, textarea::placeholder {
+  color: var(--muted);
+}
+
+.form-control:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(13, 148, 136, 0.15);
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.field-hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin: 2px 0 6px;
+}
+
+.field-hint code {
+  color: var(--accent);
+  background: transparent;
+}
+
+/* =========================================
+   LEFT PANEL CARD (app panel)
+========================================= */
+
+.app-panel {
+  border-radius: 14px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow);
+  padding: 1.25rem !important;
+}
+
+.app-panel > .mb-2 {
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.9rem !important;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.app-panel > .mb-2:last-of-type {
+  border-bottom: none;
+}
+
+.mic-btn {
+  flex-shrink: 0;
+  border-radius: 50% !important;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Applied to the mic button and the read-aloud button while actively listening/speaking */
+.btn-live-pulse {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+/* =========================================
+   NOTE CARDS (colorful sticky notes)
+========================================= */
+
+.note-card {
+  border-radius: 12px;
+  padding: 6px;
+  border: 2px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  animation: fadeInUp 0.35s ease both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note-card { animation: none; }
+}
+
+.note-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 4px 16px rgba(0,0,0,0.15);
+}
+
+.note-card .card-body {
+  padding-bottom: 0.5rem;
+}
+
+/* Tags */
+.note-card .badge {
+  background: #555 !important;
+  font-size: 0.65rem;
+  opacity: 0.85;
+}
+
+/* Edit/Delete buttons */
+.note-card button {
+  border-radius: 6px;
+}
+
+/* =========================================
+   COLOR PICKER CIRCLES
+========================================= */
+
+.color-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--panel-border);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.color-circle:hover {
+  transform: scale(1.15);
+}
+
+.color-circle.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.25);
+  animation: pop 0.3s ease;
+}
+
+@keyframes pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* =========================================
+   EMOJI PICKER
+========================================= */
+
+.emoji-option {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: 0.15s ease;
+}
+
+.emoji-option:hover {
+  transform: scale(1.15);
+  background: rgba(13, 148, 136, 0.08);
+}
+
+.emoji-option.selected {
+  border-color: var(--accent);
+  background: rgba(13, 148, 136, 0.12);
+  animation: pop 0.3s ease;
+}
+
+/* =========================================
+   NOTE CONTENT (rendered Markdown)
+========================================= */
+
+.note-content p:last-child {
+  margin-bottom: 0;
+}
+
+.note-content ul {
+  padding-left: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.note-content li.task-list-item {
+  list-style: none;
+  margin-left: -1.2rem;
+}
+
+.note-content a[href^="#note-link:"] {
+  color: var(--accent-hover);
+  font-weight: 600;
+  text-decoration: underline dotted;
+}
+
+.note-meta {
+  font-size: 0.7rem;
+}
+
+.shared-badge {
+  background: #7952b3 !important;
+  color: #fff;
+}
+
+.attachment-thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+/* =========================================
+   AUTH PAGES (login / signup)
+========================================= */
+
+.auth-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border) !important;
+  border-radius: 16px;
+  animation: fadeInUp 0.5s ease both;
+}
+
+.auth-card .btn-primary {
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3);
+}
+
+.auth-card a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-card a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================
+   SEARCH BAR
+========================================= */
+
+#searchInput {
+  border-radius: 20px;
+  padding-left: 14px;
+}
+
+/* =========================================
+   DARK MODE OVERRIDES
+========================================= */
+
+/* Note cards always keep their pastel/light background so the colored
+   sticky-note identity stays readable regardless of app theme */
+.note-card,
+.note-card .card-title,
+.note-card .card-text {
+  color: #222 !important;
+}
+
+body.dark-mode .note-card {
+  border-color: var(--panel-border);
+}
+
+body.dark-mode .modal-content {
+  background: var(--panel-bg);
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+}
+
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+  border-color: var(--panel-border);
+}
+
+body.dark-mode .btn-close {
+  filter: invert(1);
+}
+
+body.dark-mode .btn-outline-danger {
+  border-color: #ff9c9c;
+  color: #ff9c9c;
+}
+
+body.dark-mode .btn-outline-danger:hover {
+  background: #ff9c9c;
+  color: #000;
+}
+
+body.dark-mode .btn-outline-secondary {
+  border-color: var(--input-border);
+  color: var(--text);
+}
+
+body.dark-mode .btn-secondary {
+  background: #343a4a;
+  border-color: #343a4a;
+}
+
+/* =========================================
+   SMALL UI DETAILS
+========================================= */
+
+#noteMsg {
+  font-weight: 600;
+}

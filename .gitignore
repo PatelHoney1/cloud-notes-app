@@ -1,0 +1,15 @@
+# Firebase config — holds project-specific keys, kept local.
+# Copy js/firebase-config.example.js to js/firebase-config.js and fill it in.
+js/firebase-config.js
+
+# Dependencies — nothing at runtime uses these; all libraries load via CDN.
+node_modules/
+
+# Editor / OS junk
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Unused screenshot — delete this line if you want it in the repo
+image.png

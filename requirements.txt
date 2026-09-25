@@ -1,0 +1,39 @@
+# Cloud Notes App — Requirements
+#
+# This is a static frontend project: plain HTML/CSS/JavaScript, no build step,
+# no server-side code, no pip/npm packages actually consumed at runtime.
+# All third-party libraries (Bootstrap, marked.js, DOMPurify, Firebase) load
+# via CDN <script> tags in the HTML files. This file lists what you need
+# INSTALLED/CONFIGURED to run the app, not installable packages.
+
+## 1. Browser
+- A modern web browser.
+- Chrome or Edge recommended — required for voice dictation (Web Speech API
+  SpeechRecognition is not implemented in Firefox/Safari).
+- Read-aloud (SpeechSynthesis) and every other feature work in all modern browsers.
+
+## 2. Local static server
+Firebase Authentication requires the app to be served over http(s) — opening
+index.html directly via a file:// path will NOT work. Use any one of:
+- VS Code "Live Server" extension (recommended, zero setup)
+- `npx serve .`               (requires Node.js — see optional section below)
+- `python -m http.server 5500`
+
+## 3. Firebase project (free "Spark" plan is sufficient — no billing required)
+- Authentication -> Email/Password provider enabled
+- Firestore Database created
+- Firestore Security Rules applied (see README.md for the exact rules to paste)
+- Cloud Storage is NOT required — attachments are stored inline in Firestore
+  as base64, specifically to avoid needing the paid Blaze plan.
+
+## 4. App configuration
+- Your Firebase project's config values pasted into js/firebase-config.js
+  (Firebase Console -> Project settings -> General -> Your apps -> SDK setup)
+
+---
+
+## Optional (not required to run the app)
+- Node.js + npm: package.json/package-lock.json/node_modules exist from
+  initial project scaffolding, but nothing in the app imports from
+  node_modules at runtime — all libraries load from CDN. Safe to ignore or
+  delete node_modules if you want to reclaim disk space.
