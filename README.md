@@ -108,6 +108,7 @@ cloud-notes-app/
 │   ├── notes-render.js
 │   ├── notes.js
 │   └── main.js
+├── firestore.rules (security rules — paste into Firebase Console)
 ├── index.html      (login)
 ├── signup.html     (signup)
 ├── notes.html      (main app)
@@ -152,34 +153,20 @@ cp js/firebase-config.example.js js/firebase-config.js
 Then open `js/firebase-config.js` and replace the placeholder values with your own project's config.
 
 ### 5. Apply Firestore Security Rules
-In the Firebase Console → Firestore Database → Rules, paste:
+The rules live in [`firestore.rules`](firestore.rules). Copy that file's contents into
+Firebase Console → Firestore Database → Rules and click **Publish**.
 
-```js
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{uid} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == uid;
-    }
+Since there's no backend server, these rules are the *only* access control in the app — the browser talks straight to Firestore. They enforce:
 
-    match /notes/{noteId} {
-      allow read, update: if request.auth != null &&
-        (request.auth.uid == resource.data.userId ||
-         request.auth.uid in resource.data.sharedWith);
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
-
-      match /history/{historyId} {
-        allow read, write: if request.auth != null &&
-          request.auth.uid == get(/databases/$(database)/documents/notes/$(noteId)).data.userId;
-      }
-    }
-  }
-}
-```
-
-This restricts every note to its owner, plus anyone it's explicitly been shared with — and locks the `users` lookup collection so people can only write their own record.
+| | |
+|---|---|
+| **Read a note** | owner, or a uid listed in `sharedWith` |
+| **Create a note** | only as yourself (`userId` and `ownerEmail` must match your token) |
+| **Edit a note** | owner freely; a collaborator may change content but *not* `userId`, `ownerEmail`, `sharedWith` or `createdAt` — so they can't re-share it or seize ownership |
+| **Delete a note** | owner only |
+| **Write history** | anyone who can edit the note (collaborators snapshot on every save too) |
+| **Rewrite/delete history** | owner only |
+| **`users` lookup** | any signed-in user can resolve one email → uid (needed for sharing), but bulk listing is capped |
 
 ### 6. Run it
 Start your local server and open `index.html` (or `signup.html` if you don't have an account yet). Sign up, log in, and start creating notes.

@@ -1,0 +1,101 @@
+rules_version = '2';
+
+// Cloud Notes — Firestore Security Rules
+//
+// There is no backend server in this app: the browser talks straight to
+// Firestore, so these rules ARE the access control. Paste them into
+// Firebase Console -> Firestore Database -> Rules and publish.
+//
+// Data model:
+//   users/{uid}                  { uid, email }            email -> uid lookup for sharing
+//   notes/{noteId}               { userId, ownerEmail, sharedWith[], ... }
+//   notes/{noteId}/history/{id}  { title, content, tags, color, emoji, savedAt }
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // ---------------------------------------------------------------
+    // users — the email -> uid directory the share modal looks up
+    // ---------------------------------------------------------------
+    match /users/{uid} {
+      // Any signed-in user must be able to resolve an email to a uid in
+      // order to share a note. The limit guard keeps that to the app's
+      // own `where(email ==).limit(1)` lookup rather than letting someone
+      // page through the whole user directory.
+      allow get: if isSignedIn();
+      allow list: if isSignedIn() && request.query.limit <= 10;
+
+      // You may only write your own record, and only with your own identity.
+      allow create, update: if isSignedIn()
+                            && request.auth.uid == uid
+                            && request.resource.data.uid == uid
+                            && request.resource.data.email == request.auth.token.email;
+      allow delete: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // ---------------------------------------------------------------
+    // notes
+    // ---------------------------------------------------------------
+    match /notes/{noteId} {
+
+      function isOwner() {
+        return isSignedIn() && request.auth.uid == resource.data.userId;
+      }
+
+      // `.get(field, default)` so a note written before `sharedWith` existed
+      // evaluates to "not shared" instead of erroring out and denying access.
+      function isSharedWithMe() {
+        return isSignedIn() && request.auth.uid in resource.data.get('sharedWith', []);
+      }
+
+      // A collaborator may edit a note's contents, but must not be able to
+      // re-share it, hand it to someone else, or seize ownership.
+      function ownershipFieldsUnchanged() {
+        return !request.resource.data.diff(resource.data).affectedKeys()
+                 .hasAny(['userId', 'ownerEmail', 'sharedWith', 'createdAt']);
+      }
+
+      allow read: if isOwner() || isSharedWithMe();
+
+      allow create: if isSignedIn()
+                    && request.auth.uid == request.resource.data.userId
+                    && request.resource.data.ownerEmail == request.auth.token.email;
+
+      allow update: if isOwner()
+                    || (isSharedWithMe() && ownershipFieldsUnchanged());
+
+      allow delete: if isOwner();
+
+      // ---------------------------------------------------------------
+      // history — version snapshots
+      //
+      // Anyone who can edit the note also writes a snapshot before each
+      // save (snapshotBeforeUpdate in js/notes-render.js), so collaborators
+      // need create access here, not just the owner. Only the owner may
+      // rewrite or purge past versions.
+      // ---------------------------------------------------------------
+      match /history/{historyId} {
+
+        function parentNote() {
+          return get(/databases/$(database)/documents/notes/$(noteId)).data;
+        }
+
+        function canEditParent() {
+          let note = parentNote();
+          return isSignedIn() && (
+            request.auth.uid == note.userId ||
+            request.auth.uid in note.get('sharedWith', [])
+          );
+        }
+
+        allow read, create: if canEditParent();
+        allow update, delete: if isSignedIn()
+                              && request.auth.uid == parentNote().userId;
+      }
+    }
+  }
+}
