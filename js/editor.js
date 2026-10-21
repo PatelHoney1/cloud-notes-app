@@ -139,13 +139,25 @@
 
   // ------------------------------------------------------------- loading
   async function populateFolderOptions() {
-    try {
-      const notes = await loadAllNotes(user.uid);
-      const names = Array.from(new Set(
-        notes.map((n) => (n.folder || "").trim()).filter(Boolean)
-      )).sort();
+    const render = (names) => {
       el.folderOptions.innerHTML = names
         .map((n) => '<option value="' + esc(n) + '"></option>').join("");
+    };
+
+    // Served from localStorage, written whenever a list page loads notes.
+    // Downloading every note (each carrying its inline base64 attachments)
+    // just to fill a datalist was costing seconds on the editor page.
+    const cached = cachedFolderNames();
+    if (cached.length) {
+      render(cached);
+      return;
+    }
+
+    try {
+      const notes = await loadAllNotes(user.uid, { maxAgeMs: 5 * 60 * 1000 });
+      render(Array.from(new Set(
+        notes.map((n) => (n.folder || "").trim()).filter(Boolean)
+      )).sort());
     } catch (err) {
       /* folder suggestions are a convenience; failing is not fatal */
     }
@@ -310,6 +322,7 @@
         history.replaceState(null, "", "editor.html?id=" + encodeURIComponent(noteId));
       }
 
+      invalidateNotesCache();
       attachments = next;
       el.noteAttachments.value = "";
       renderAttachments();
@@ -329,6 +342,7 @@
     if (!confirm("Delete this note? This cannot be undone.")) return;
     try {
       await db.collection("notes").doc(noteId).delete();
+      invalidateNotesCache();
       showToast("Deleted", "The note is gone.", "ok");
       setTimeout(() => (location.href = "home.html"), 600);
     } catch (err) {

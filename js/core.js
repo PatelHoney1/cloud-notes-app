@@ -104,10 +104,30 @@ function sortNotes(list) {
   });
 }
 
+// In-page cache. Attachments are stored inline as base64, so a note document
+// can approach 1MB -- refetching the whole set on a timer is the difference
+// between a snappy app and a slow one. Callers that can tolerate slightly
+// stale data pass maxAgeMs and usually get an instant answer.
+let notesCache = { uid: null, at: 0, notes: null };
+
+function invalidateNotesCache() {
+  notesCache = { uid: null, at: 0, notes: null };
+}
+
 // Owned notes plus notes shared with this user, de-duplicated.
 // Each query is ordered server-side, which is why firestore.indexes.json
 // declares a composite index for both.
-async function loadAllNotes(userId) {
+async function loadAllNotes(userId, options) {
+  const maxAgeMs = (options && options.maxAgeMs) || 0;
+
+  if (
+    notesCache.notes &&
+    notesCache.uid === userId &&
+    Date.now() - notesCache.at < maxAgeMs
+  ) {
+    return notesCache.notes;
+  }
+
   const [owned, shared] = await Promise.all([
     db.collection("notes").where("userId", "==", userId)
       .orderBy("updatedAt", "desc").get(),
@@ -121,7 +141,35 @@ async function loadAllNotes(userId) {
     if (!map.has(d.id)) map.set(d.id, { id: d.id, ...d.data() });
   });
 
-  return sortNotes(Array.from(map.values()));
+  const result = sortNotes(Array.from(map.values()));
+  notesCache = { uid: userId, at: Date.now(), notes: result };
+  cacheFolderNames(result);
+  return result;
+}
+
+// Folder names are tiny and change rarely, so the editor reads them from
+// localStorage rather than downloading every note just to fill a datalist.
+const FOLDER_NAMES_KEY = "folderNames";
+
+function cacheFolderNames(notes) {
+  try {
+    const names = Array.from(new Set(
+      notes.map((n) => (n.folder || "").trim()).filter(Boolean)
+    )).sort();
+    localStorage.setItem(FOLDER_NAMES_KEY, JSON.stringify(names));
+  } catch (err) {
+    /* storage blocked — the editor falls back to fetching */
+  }
+}
+
+function cachedFolderNames() {
+  try {
+    const raw = localStorage.getItem(FOLDER_NAMES_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    return [];
+  }
 }
 
 function searchNotes(notes, query) {

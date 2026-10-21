@@ -128,16 +128,24 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
    BACKGROUND BLOBS — organic shapes that slowly morph
    ========================================================================= */
 
+/* Performance note: the shape is static and only `transform` is animated.
+   Animating border-radius forces a full repaint of a heavily blurred layer
+   every frame, which is the single most expensive thing a phone GPU can be
+   asked to do here. transform alone is composited, so the blurred layer is
+   rasterised once and merely moved. */
 .bg-blob {
   position: fixed;
-  width: 420px;
-  height: 420px;
-  filter: blur(70px);
+  width: 380px;
+  height: 380px;
+  filter: blur(60px);
   opacity: 0.30;
   z-index: -1;
   pointer-events: none;
   border-radius: 58% 42% 36% 64% / 44% 52% 48% 56%;
-  animation: morphBlob 22s ease-in-out infinite;
+  animation: driftBlob 24s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .blob-1 {
@@ -168,19 +176,13 @@ body.dark-mode .blob-3 { opacity: 0.18; }
 
 body.dark-mode .bg-blob { opacity: 0.26; }
 
-@keyframes morphBlob {
-  0%, 100% {
-    border-radius: 58% 42% 36% 64% / 44% 52% 48% 56%;
-    transform: translate(0, 0) scale(1) rotate(0deg);
-  }
-  33% {
-    border-radius: 38% 62% 58% 42% / 58% 36% 64% 42%;
-    transform: translate(46px, -34px) scale(1.12) rotate(42deg);
-  }
-  66% {
-    border-radius: 64% 36% 48% 52% / 36% 60% 40% 64%;
-    transform: translate(-30px, 28px) scale(0.95) rotate(-26deg);
-  }
+/* transform-only: composited on the GPU, no repaint per frame.
+   Rotating the asymmetric shape gives the same "morphing" impression that
+   animating border-radius did, at a fraction of the cost. */
+@keyframes driftBlob {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  33%      { transform: translate3d(42px, -30px, 0) scale(1.10) rotate(50deg); }
+  66%      { transform: translate3d(-26px, 26px, 0) scale(0.94) rotate(-32deg); }
 }
 
 /* =========================================================================
@@ -793,15 +795,9 @@ body.dark-mode .btn-close { filter: invert(1) grayscale(1) brightness(1.8); }
   color: #fff;
   font-weight: 600;
   box-shadow: var(--shadow-lg);
-  animation: addPulse 2.6s ease-in-out infinite;
 }
 
 .install-fab:hover { background: var(--purple); border-color: var(--purple); color: #fff; }
-
-@keyframes addPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(216, 100, 232, 0.5), var(--shadow-lg); }
-  50%      { box-shadow: 0 0 0 14px rgba(216, 100, 232, 0), var(--shadow-lg); }
-}
 
 /* =========================================================================
    PAGE TRANSITION
@@ -822,8 +818,19 @@ main, .container { animation: pageIn var(--dur-slow) var(--ease) both; }
   h3 { font-size: 1.4rem; }
   .note-card .card-footer { gap: 0.35rem; }
   .note-card button { font-size: 0.7rem; padding: 0.2rem 0.55rem; }
-  .bg-blob { width: 300px; height: 300px; }
+  /* A blurred layer costs roughly its area to rasterise, so phones get
+     smaller, less-blurred blobs and one fewer of them. */
+  .bg-blob { width: 240px; height: 240px; filter: blur(44px); }
+  .blob-3 { display: none; }
   #searchInput { width: 100% !important; }
+}
+
+/* Devices that report a coarse pointer and limited cores are the ones that
+   actually struggle with the blurred layers — drop the animation there and
+   keep the colour. */
+@media (max-width: 480px) and (pointer: coarse) {
+  .bg-blob { animation: none; }
+  .app-top::after { animation: none; }
 }
 
 /* =========================================================================
@@ -1072,7 +1079,8 @@ main, .container { animation: pageIn var(--dur-slow) var(--ease) both; }
   height: 190px;
   border-radius: 54% 46% 38% 62% / 48% 54% 46% 52%;
   background: rgba(255, 255, 255, 0.14);
-  animation: morphBlob 20s ease-in-out infinite;
+  animation: driftBlob 20s ease-in-out infinite;
+  will-change: transform;
 }
 
 .app-top h1, .app-top h2, .app-top h4 { color: #fff; margin: 0; }
@@ -1274,8 +1282,25 @@ main, .container { animation: pageIn var(--dur-slow) var(--ease) both; }
   box-shadow: var(--shadow-lg);
   cursor: pointer;
   z-index: 1030;
-  animation: addPulse 2.8s ease-in-out infinite;
   transition: transform var(--dur) var(--ease);
+}
+
+/* The pulse is a scaling ring rather than an animated box-shadow: shadow
+   animation repaints the element every frame, transform and opacity do not. */
+.fab::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--magenta);
+  animation: ringPulse 2.8s ease-out infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+@keyframes ringPulse {
+  0%        { transform: scale(1);    opacity: 0.6; }
+  70%, 100% { transform: scale(1.55); opacity: 0; }
 }
 
 .fab:hover { transform: scale(1.08) rotate(90deg); color: #fff; }

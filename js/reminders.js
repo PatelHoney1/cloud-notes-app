@@ -8,7 +8,9 @@
 // reminder to a closed browser needs a push service and a server-side
 // scheduler, neither of which exists in a client-only app.
 
-const REMINDER_POLL_MS = 60 * 1000;
+// Five minutes, not one: the due-soon window is an hour wide, so a
+// tighter poll buys nothing and costs two full queries each time.
+const REMINDER_POLL_MS = 5 * 60 * 1000;
 const REMINDER_WINDOW_MS = 60 * 60 * 1000; // "due soon" = within the hour
 const NOTIFIED_KEY = "notifiedNoteIds";
 
@@ -152,7 +154,7 @@ function startReminderLoop(userId) {
 
   const run = async () => {
     try {
-      const notes = await loadAllNotes(userId);
+      const notes = await loadAllNotes(userId, { maxAgeMs: 4 * 60 * 1000 });
       checkReminders(notes);
     } catch (err) {
       /* offline or rules error — the next tick retries */
