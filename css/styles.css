@@ -153,6 +153,19 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
   animation-delay: -11s;
 }
 
+.blob-3 {
+  top: 38%;
+  right: -190px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle at 50% 50%, var(--mint), transparent 70%);
+  opacity: 0.22;
+  animation-delay: -5s;
+  animation-duration: 26s;
+}
+
+body.dark-mode .blob-3 { opacity: 0.18; }
+
 body.dark-mode .bg-blob { opacity: 0.26; }
 
 @keyframes morphBlob {
@@ -814,6 +827,216 @@ main, .container { animation: pageIn var(--dur-slow) var(--ease) both; }
 }
 
 /* =========================================================================
+   AUTH PAGES — colour and motion for login / signup
+   ========================================================================= */
+
+.auth-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(170deg,
+      rgba(216, 100, 232, 0.07),
+      rgba(46, 216, 160, 0.05) 58%,
+      transparent 85%),
+    var(--surface);
+  animation: authCardIn 620ms var(--ease) both;
+}
+
+/* gradient rule across the top edge of the card */
+.auth-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: linear-gradient(
+    90deg, var(--purple), var(--magenta), var(--mint), var(--yellow), var(--purple));
+  background-size: 250% 100%;
+  animation: gradientShift 6s ease infinite;
+}
+
+@keyframes authCardIn {
+  from { opacity: 0; transform: translateY(26px) scale(0.965); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* each row of the form arrives a beat after the one above it */
+.auth-card > * { animation: fieldIn 460ms var(--ease) both; }
+.auth-card > *:nth-child(1) { animation-delay: 90ms; }
+.auth-card > *:nth-child(2) { animation-delay: 160ms; }
+.auth-card > *:nth-child(3) { animation-delay: 230ms; }
+.auth-card > *:nth-child(4) { animation-delay: 300ms; }
+.auth-card > *:nth-child(5) { animation-delay: 370ms; }
+.auth-card > *:nth-child(6) { animation-delay: 440ms; }
+.auth-card > *:nth-child(n+7) { animation-delay: 510ms; }
+
+@keyframes fieldIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* underline grows out from the centre on focus */
+.auth-card .mb-3 { position: relative; }
+
+.auth-card .mb-3::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, var(--magenta), var(--purple));
+  transform: translateX(-50%);
+  transition: width var(--dur) var(--ease);
+  pointer-events: none;
+}
+
+.auth-card .mb-3:focus-within::after { width: 100%; }
+
+.auth-card .form-label { transition: color var(--dur) var(--ease); }
+.auth-card .mb-3:focus-within .form-label { color: var(--accent); }
+
+/* primary action: gradient fill with a shimmer sweep on hover */
+.auth-card .btn-primary {
+  background: linear-gradient(120deg, var(--purple), var(--magenta));
+  border: none;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.02em;
+}
+
+.auth-card .btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    100deg, transparent, rgba(255, 255, 255, 0.42), transparent);
+  transform: skewX(-18deg);
+}
+
+.auth-card .btn-primary:hover::before { animation: shimmer-sweep 850ms var(--ease); }
+
+@keyframes shimmer-sweep {
+  from { left: -75%; }
+  to   { left: 130%; }
+}
+
+.auth-card .btn-primary:hover {
+  background: linear-gradient(120deg, var(--magenta), var(--purple));
+  box-shadow: 0 10px 26px rgba(145, 55, 190, 0.34);
+}
+
+/* animated underline on the login / signup cross-link */
+.auth-card a {
+  position: relative;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-card a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--magenta), var(--mint));
+  transition: width var(--dur) var(--ease);
+}
+
+.auth-card a:hover { text-decoration: none; color: var(--magenta); }
+.auth-card a:hover::after { width: 100%; }
+
+/* error text shakes as soon as JS writes a message into it */
+#msg:not(:empty) {
+  display: block;
+  animation: errShake 420ms var(--ease);
+  background: rgba(232, 83, 122, 0.1);
+  border-left: 3px solid #E8537A;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+@keyframes errShake {
+  0%, 100% { transform: translateX(0); }
+  18%      { transform: translateX(-7px); }
+  38%      { transform: translateX(6px); }
+  58%      { transform: translateX(-4px); }
+  78%      { transform: translateX(2px); }
+}
+
+/* =========================================================================
+   MOTION ACROSS THE REST OF THE APP
+   ========================================================================= */
+
+/* navbar drops in on load */
+.navbar { animation: navIn 520ms var(--ease) both; }
+
+@keyframes navIn {
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* modals scale up rather than only fading */
+.modal.fade .modal-dialog {
+  transform: scale(0.94) translateY(18px);
+  transition: transform var(--dur) var(--ease);
+}
+
+.modal.show .modal-dialog { transform: none; }
+
+/* search field lifts and glows when focused */
+#searchInput {
+  transition: border-color var(--dur) var(--ease),
+              background var(--dur) var(--ease),
+              box-shadow var(--dur) var(--ease),
+              transform var(--dur) var(--ease);
+}
+
+#searchInput:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(91, 45, 145, 0.16);
+}
+
+/* badges pop in with the card they belong to */
+.note-card .badge { animation: badgePop 380ms var(--ease) both; animation-delay: 160ms; }
+
+@keyframes badgePop {
+  0%   { opacity: 0; transform: scale(0.6); }
+  65%  { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* note title nudges on card hover */
+.note-card .card-title {
+  transition: transform var(--dur) var(--ease);
+  transform-origin: left center;
+}
+
+.note-card:hover .card-title { transform: translateX(3px); }
+
+/* footer actions fade up as the card settles */
+.note-card .card-footer button { animation: fieldIn 420ms var(--ease) both; animation-delay: 220ms; }
+
+/* colour swatches arrive in sequence */
+#colorOptions .color-circle,
+#emojiOptions .emoji-option { animation: badgePop 380ms var(--ease) both; }
+
+#colorOptions .color-circle:nth-child(1) { animation-delay: 60ms; }
+#colorOptions .color-circle:nth-child(2) { animation-delay: 110ms; }
+#colorOptions .color-circle:nth-child(3) { animation-delay: 160ms; }
+#colorOptions .color-circle:nth-child(4) { animation-delay: 210ms; }
+#colorOptions .color-circle:nth-child(5) { animation-delay: 260ms; }
+
+/* save confirmation pulses when JS writes into it */
+#noteMsg:not(:empty) { animation: fieldIn 320ms var(--ease); }
+
+/* =========================================================================
    REDUCED MOTION — honour the OS preference everywhere
    ========================================================================= */
 
@@ -829,7 +1052,15 @@ main, .container { animation: pageIn var(--dur-slow) var(--ease) both; }
 
   .btn:hover,
   .note-card:hover,
+  .note-card:hover .card-title,
   .color-circle:hover,
   .emoji-option:hover,
-  .attachment-thumb:hover { transform: none; }
+  .attachment-thumb:hover,
+  #searchInput:focus { transform: none; }
+
+  /* decorative sweeps and shakes carry no information — remove them outright */
+  .auth-card .btn-primary::before,
+  .auth-card .mb-3::after { display: none; }
+
+  #msg:not(:empty) { animation: none; }
 }
