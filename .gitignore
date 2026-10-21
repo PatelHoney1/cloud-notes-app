@@ -13,3 +13,6 @@ Thumbs.db
 
 # Unused screenshot — delete this line if you want it in the repo
 image.png
+
+# Firebase CLI deploy cache
+.firebase/

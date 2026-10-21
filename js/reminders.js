@@ -84,30 +84,66 @@ function showToast(title, body, variant) {
 window.showToast = showToast;
 
 // ---------------------------------------------------------------- engine
-function notifyDue(note, overdue) {
+async function notifyDue(note, overdue) {
   const title = overdue
     ? `Overdue: ${note.title || "Untitled note"}`
     : `Due soon: ${note.title || "Untitled note"}`;
   const body = (note.content || "").replace(/\s+/g, " ").slice(0, 120);
 
-  if ("Notification" in window && Notification.permission === "granted") {
-    try {
-      const n = new Notification(title, {
-        body,
-        icon: "icons/icon-192.png",
-        badge: "icons/icon-192.png",
-        tag: "note-" + note.id
-      });
-      n.onclick = () => {
-        window.focus();
-        window.location.href = "editor.html?id=" + encodeURIComponent(note.id);
-      };
-    } catch (err) {
-      /* some browsers throw when constructing from a non-SW context */
+  // The in-app toast always shows, whatever happens with system notifications.
+  showToast(title, body, overdue ? "danger" : "warn");
+
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+  const url = "editor.html?id=" + encodeURIComponent(note.id);
+  const options = {
+    body,
+    icon: "icons/icon-192.png",
+    badge: "icons/icon-192.png",
+    tag: "note-" + note.id,
+    renotify: true,
+    data: { noteId: note.id, url }
+  };
+
+  // Chrome on Android refuses `new Notification()` outright -- it throws
+  // "Illegal constructor" and insists on ServiceWorkerRegistration
+  // .showNotification(). That is why reminders appeared to do nothing on a
+  // phone despite permission being granted. Try the service worker first and
+  // keep the direct constructor as the desktop fallback.
+  try {
+    if ("serviceWorker" in navigator) {
+      // navigator.serviceWorker.ready never settles when nothing is
+      // registered, so it needs a deadline.
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((resolve) => setTimeout(() => resolve(null), 2000))
+      ]);
+
+      if (reg && typeof reg.showNotification === "function") {
+        await reg.showNotification(title, options);
+        return;
+      }
     }
+  } catch (err) {
+    console.warn("[Cloud Notes] Service-worker notification failed:", err.message);
   }
 
-  showToast(title, body, overdue ? "danger" : "warn");
+  try {
+    const n = new Notification(title, options);
+    n.onclick = () => {
+      window.focus();
+      window.location.href = url;
+    };
+  } catch (err) {
+    // Surface it rather than swallowing it -- a silent miss is the worst
+    // possible behaviour for a reminder.
+    console.warn("[Cloud Notes] Notification failed:", err.message);
+    showToast(
+      "Reminder could not be shown",
+      "Your browser blocked the notification, but the reminder is above.",
+      "danger"
+    );
+  }
 }
 
 function checkReminders(notes) {
@@ -122,10 +158,15 @@ function checkReminders(notes) {
     const diff = due - now;
     // Fire once for anything already overdue or falling due within the hour.
     if (diff > REMINDER_WINDOW_MS) continue;
-    if (notified.has(note.id)) continue;
+
+    // Keyed by note AND due time, so moving a note's due date re-arms its
+    // reminder. Keying by id alone meant a note could only ever notify once,
+    // which made the feature look broken as soon as you edited a date.
+    const key = note.id + "@" + due;
+    if (notified.has(key)) continue;
 
     notifyDue(note, diff < 0);
-    notified.add(note.id);
+    notified.add(key);
     changed = true;
   }
 
@@ -168,3 +209,13 @@ function startReminderLoop(userId) {
 }
 
 window.startReminderLoop = startReminderLoop;
+
+// Fires a reminder immediately, so the notification path can be tested
+// without waiting for a note to actually fall due.
+window.sendTestReminder = function () {
+  notifyDue({
+    id: "test-" + Date.now(),
+    title: "Test reminder",
+    content: "If you can see this, reminders are working."
+  }, false);
+};

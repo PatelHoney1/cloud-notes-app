@@ -38,6 +38,10 @@
     await populateFolderOptions();
     if (noteId) await loadNote();
     updateProgress();
+
+    // Reminders poll from whatever page is open, so sitting in the editor
+    // no longer means missing a note falling due.
+    startReminderLoop(user.uid);
   });
 
   // ------------------------------------------------------------- pickers

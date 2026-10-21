@@ -13,7 +13,7 @@
  * drops every older cache.
  */
 
-const CACHE_VERSION = "v3";
+const CACHE_VERSION = "v4";
 const CACHE = `cloud-notes-${CACHE_VERSION}`;
 
 // Same-origin files that make up the app shell.
@@ -92,6 +92,41 @@ self.addEventListener("activate", (event) => {
 // Lets the page tell a waiting worker to take over immediately.
 self.addEventListener("message", (event) => {
   if (event.data === "SKIP_WAITING") self.skipWaiting();
+});
+
+// Reminders are raised through registration.showNotification(), because
+// Chrome on Android refuses the Notification constructor. Tapping one should
+// focus an existing window and take it to the note, or open a new one.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const target =
+    (event.notification.data && event.notification.data.url) || "./home.html";
+
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true
+      });
+
+      for (const client of windows) {
+        if ("focus" in client) {
+          await client.focus();
+          if ("navigate" in client) {
+            try {
+              await client.navigate(target);
+            } catch (err) {
+              /* cross-origin or disallowed navigation — focus is enough */
+            }
+          }
+          return;
+        }
+      }
+
+      if (self.clients.openWindow) await self.clients.openWindow(target);
+    })()
+  );
 });
 
 self.addEventListener("fetch", (event) => {

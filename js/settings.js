@@ -10,6 +10,7 @@
     const notifBtn = document.getElementById("notifBtn");
     const notifState = document.getElementById("notifState");
     const exportAllBtn = document.getElementById("exportAllBtn");
+    const testNotifBtn = document.getElementById("testNotifBtn");
     const replayBtn = document.getElementById("replayBtn");
     const logoutBtn = document.getElementById("logoutBtn");
     const deleteBtn = document.getElementById("deleteAccountBtn");
@@ -44,6 +45,14 @@
 
     renderNotif();
 
+    testNotifBtn.addEventListener("click", () => {
+      if (!("Notification" in window) || Notification.permission !== "granted") {
+        showToast("Reminders are off", "Turn them on above first.", "warn");
+        return;
+      }
+      sendTestReminder();
+    });
+
     notifBtn.addEventListener("click", async () => {
       try {
         await Notification.requestPermission();
@@ -59,6 +68,8 @@
     // ---- auth-dependent ----
     user = await requireAuth();
     document.getElementById("userEmail").textContent = user.email || "";
+
+    startReminderLoop(user.uid);
 
     exportAllBtn.addEventListener("click", async () => {
       exportAllBtn.disabled = true;
