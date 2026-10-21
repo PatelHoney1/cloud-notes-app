@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cloud Notes - Settings</title>
+  <meta name="theme-color" content="#5B2D91">
+  <meta name="description" content="Your profile and app settings.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<script>try{if(localStorage.getItem("theme")==="dark")document.body.classList.add("dark-mode");}catch(e){}</script>
+
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+
+  <div class="app-shell">
+
+    <header class="app-top">
+      <a href="home.html" class="back-link">‹ Home</a>
+      <div class="headline mt-2">Settings</div>
+      <div class="subline" id="userEmail">&nbsp;</div>
+    </header>
+
+    <div class="app-pad pt-3">
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-title">Dark mode</div>
+          <p class="settings-row-sub">Easier on the eyes at night</p>
+        </div>
+        <div class="form-check form-switch mb-0">
+          <input class="form-check-input" type="checkbox" id="themeToggle">
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-title">Reminders</div>
+          <p class="settings-row-sub" id="notifState">Checking…</p>
+        </div>
+        <button id="notifBtn" class="btn btn-sm btn-outline-primary">Enable</button>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-title">Export all notes</div>
+          <p class="settings-row-sub">Download everything as a .txt file</p>
+        </div>
+        <button id="exportAllBtn" class="btn btn-sm btn-outline-primary">Export</button>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-title">Classic view</div>
+          <p class="settings-row-sub">The original wide desktop layout</p>
+        </div>
+        <a href="notes.html" class="btn btn-sm btn-outline-secondary">Open</a>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-title">Replay the intro</div>
+          <p class="settings-row-sub">Show the onboarding slides again</p>
+        </div>
+        <button id="replayBtn" class="btn btn-sm btn-outline-secondary">Replay</button>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-title">Log out</div>
+          <p class="settings-row-sub">Sign out on this device</p>
+        </div>
+        <button id="logoutBtn" class="btn btn-sm btn-outline-danger">Log out</button>
+      </div>
+
+      <div class="settings-row" style="border-color:#E8537A;">
+        <div>
+          <div class="settings-row-title" style="color:#E8537A;">Delete account</div>
+          <p class="settings-row-sub">Removes your notes and your account. Permanent.</p>
+        </div>
+        <button id="deleteAccountBtn" class="btn btn-sm btn-outline-danger">Delete</button>
+      </div>
+
+      <p class="field-hint text-center mt-3 mb-4" id="appVersion">Cloud Notes</p>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/offline.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/reminders.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/pwa.js"></script>
+
+</body>
+</html>

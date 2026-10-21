@@ -13,7 +13,7 @@
  * drops every older cache.
  */
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE = `cloud-notes-${CACHE_VERSION}`;
 
 // Same-origin files that make up the app shell.
@@ -21,13 +21,27 @@ const SHELL = [
   "./",
   "./index.html",
   "./signup.html",
+  "./forgot-password.html",
+  "./splash.html",
+  "./home.html",
+  "./editor.html",
+  "./folder.html",
+  "./settings.html",
   "./notes.html",
   "./offline.html",
+  "./404.html",
   "./css/styles.css",
   "./js/firebase-config.js",
   "./js/offline.js",
+  "./js/core.js",
+  "./js/reminders.js",
   "./js/pwa.js",
   "./js/auth.js",
+  "./js/onboarding.js",
+  "./js/home.js",
+  "./js/editor.js",
+  "./js/folder.js",
+  "./js/settings.js",
   "./js/notes-render.js",
   "./js/notes.js",
   "./js/main.js",
@@ -35,6 +49,7 @@ const SHELL = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-512.png",
+  "./icons/apple-touch-icon.png",
   "./icons/favicon-32.png"
 ];
 
