@@ -1,476 +1,835 @@
-/* =========================================
-   DESIGN TOKENS
-========================================= */
+/* =========================================================================
+   CLOUD NOTES — THEME
+   Every colour, radius, shadow and duration is a token on :root, redefined
+   under body.dark-mode. Components below reference tokens only, so a new
+   theme is a token swap rather than a stylesheet rewrite.
+   ========================================================================= */
 
 :root {
-  --accent: #0d9488;
-  --accent-hover: #0f766e;
-  --accent-2: #8b5cf6;
-  --accent-3: #f43f5e;
-  --bg: #FBF9F2;
-  --panel-bg: #ffffff;
-  --panel-border: #ebe7db;
-  --input-bg: #ffffff;
-  --input-border: #dcdcdc;
-  --text: #2b2b2b;
-  --muted: #6b7280;
-  --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  /* brand palette */
+  --purple: #5B2D91;
+  --purple-600: #4A2378;
+  --purple-300: #8A5FC0;
+  --magenta: #D864E8;
+  --mint: #2ED8A0;
+  --yellow: #F5C842;
+  --blue: #4A6FB0;
+  --lavender: #E6E0F2;
+
+  /* semantic */
+  --accent: var(--purple);
+  --accent-hover: var(--purple-600);
+  --accent-2: var(--magenta);
+  --accent-3: var(--mint);
+
+  --bg: #FAF8FD;
+  --surface: #FFFFFF;
+  --surface-2: var(--lavender);
+  --border: #E4DCF0;
+  --input-bg: transparent;
+  --input-border: #D9CEEA;
+  --text: #211A2E;
+  --text-on-accent: #FFFFFF;
+  --muted: #6E6484;
+
+  /* note cards carry their own pastel background from the database, so their
+     text colour must stay dark in both themes or it vanishes in dark mode */
+  --note-ink: #241D32;
+
+  --radius-sm: 10px;
+  --radius: 18px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 2px 8px rgba(43, 20, 78, 0.06);
+  --shadow: 0 8px 24px rgba(43, 20, 78, 0.10);
+  --shadow-lg: 0 18px 42px rgba(43, 20, 78, 0.16);
+
+  --dur-fast: 140ms;
+  --dur: 260ms;
+  --dur-slow: 520ms;
+  --ease: cubic-bezier(0.22, 0.75, 0.3, 1);
 }
 
 body.dark-mode {
-  --accent: #2dd4bf;
-  --accent-hover: #5eead4;
-  --accent-2: #a78bfa;
-  --accent-3: #fb7185;
-  --bg: #10131a;
-  --panel-bg: #181c25;
-  --panel-border: #2a2f3d;
-  --input-bg: #1f2430;
-  --input-border: #343a4a;
-  --text: #e8eaf0;
-  --muted: #98a1b3;
-  --shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  --purple: #A77BE0;
+  --purple-600: #C2A3EC;
+  --purple-300: #7E55BC;
+  --magenta: #E88CF4;
+  --mint: #4FE6B5;
+  --yellow: #FBD66B;
+  --blue: #7C9BD8;
+  --lavender: #2A2140;
+
+  --bg: #140F1F;
+  --surface: #1D1730;
+  --surface-2: #261D3C;
+  --border: #342A4D;
+  --input-border: #413459;
+  --text: #EFEAF8;
+  --text-on-accent: #170F26;
+  --muted: #A197BA;
+
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.55);
 }
 
-/* =========================================
-   ANIMATED BACKGROUND BLOBS
-========================================= */
+/* =========================================================================
+   BASE
+   ========================================================================= */
 
-.bg-blob {
-  position: fixed;
-  width: 380px;
-  height: 380px;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.3;
-  z-index: -1;
-  pointer-events: none;
-  animation: floatBlob 18s ease-in-out infinite;
-  transition: opacity 0.3s ease;
-}
-
-.blob-1 {
-  top: -120px;
-  left: -100px;
-  background: radial-gradient(circle at 30% 30%, var(--accent), transparent 70%);
-}
-
-.blob-2 {
-  bottom: -140px;
-  right: -120px;
-  background: radial-gradient(circle at 70% 70%, var(--accent-2), transparent 70%);
-  animation-delay: -9s;
-}
-
-body.dark-mode .bg-blob {
-  opacity: 0.22;
-}
-
-@keyframes floatBlob {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%      { transform: translate(40px, -30px) scale(1.12); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bg-blob { animation: none; }
-}
-
-/* =========================================
-   GLOBAL
-========================================= */
+* { -webkit-tap-highlight-color: transparent; }
 
 body {
   background: var(--bg);
   color: var(--text);
-  transition: background 0.3s ease, color 0.3s ease;
-  font-family: "Segoe UI", sans-serif;
+  font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: -0.005em;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+  overflow-x: hidden;
 }
 
-.navbar {
-  background: var(--panel-bg) !important;
-  border-bottom: 1px solid var(--panel-border);
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
 }
 
+h3 { font-size: 1.6rem; }
+h5 { font-size: 1.05rem; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+::selection { background: var(--magenta); color: #fff; }
+
+/* Animated brand wordmark */
 .header1 {
-  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent));
+  background: linear-gradient(
+    92deg, var(--purple), var(--magenta), var(--mint), var(--purple));
   background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   font-weight: 800;
-  animation: gradientShift 6s ease infinite;
+  letter-spacing: -0.03em;
+  animation: gradientShift 7s ease infinite;
   display: inline-block;
 }
 
 @keyframes gradientShift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .header1 { animation: none; }
+/* =========================================================================
+   BACKGROUND BLOBS — organic shapes that slowly morph
+   ========================================================================= */
+
+.bg-blob {
+  position: fixed;
+  width: 420px;
+  height: 420px;
+  filter: blur(70px);
+  opacity: 0.30;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 58% 42% 36% 64% / 44% 52% 48% 56%;
+  animation: morphBlob 22s ease-in-out infinite;
 }
 
-h5 {
-  font-weight: 600;
+.blob-1 {
+  top: -150px;
+  left: -120px;
+  background: radial-gradient(circle at 32% 32%, var(--purple), transparent 68%);
 }
 
-h5.mb-0, .app-panel h5 {
-  color: var(--text);
+.blob-2 {
+  bottom: -170px;
+  right: -140px;
+  background: radial-gradient(circle at 68% 68%, var(--magenta), transparent 68%);
+  animation-delay: -11s;
 }
 
-button {
-  border-radius: 8px !important;
+body.dark-mode .bg-blob { opacity: 0.26; }
+
+@keyframes morphBlob {
+  0%, 100% {
+    border-radius: 58% 42% 36% 64% / 44% 52% 48% 56%;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    border-radius: 38% 62% 58% 42% / 58% 36% 64% 42%;
+    transform: translate(46px, -34px) scale(1.12) rotate(42deg);
+  }
+  66% {
+    border-radius: 64% 36% 48% 52% / 36% 60% 40% 64%;
+    transform: translate(-30px, 28px) scale(0.95) rotate(-26deg);
+  }
 }
+
+/* =========================================================================
+   NAVBAR
+   ========================================================================= */
+
+.navbar {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding-block: 0.7rem;
+}
+
+.navbar-brand { font-weight: 800; }
+
+/* =========================================================================
+   BUTTONS — with a ripple on press
+   ========================================================================= */
 
 .btn {
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  padding: 0.5rem 1.15rem;
+  border-width: 2px;
+  transition: transform var(--dur-fast) var(--ease),
+              box-shadow var(--dur) var(--ease),
+              background var(--dur) var(--ease),
+              color var(--dur) var(--ease);
 }
 
-.btn:hover {
-  transform: translateY(-2px);
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(1);
+  pointer-events: none;
 }
 
-.btn:active {
-  transform: translateY(0) scale(0.96);
+.btn:active::after {
+  animation: ripple var(--dur-slow) var(--ease);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .btn, .btn:hover, .btn:active { transition: none; transform: none; }
+@keyframes ripple {
+  0%   { opacity: 0.32; transform: scale(1); }
+  100% { opacity: 0;    transform: scale(34); }
 }
 
-/* Bootstrap primary -> app accent, so the whole UI reads as one palette */
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+
+.btn:focus-visible {
+  outline: 3px solid var(--magenta);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
 .btn-primary {
-  background-color: var(--accent) !important;
-  border-color: var(--accent) !important;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover,
 .btn-primary:focus {
-  background-color: var(--accent-hover) !important;
-  border-color: var(--accent-hover) !important;
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--text-on-accent);
+  box-shadow: var(--shadow);
 }
 
-.btn-outline-primary {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-.btn-outline-primary:hover {
-  background-color: var(--accent);
-  border-color: var(--accent);
-}
-
-/* Inputs */
-.form-control, textarea {
-  background: var(--input-bg);
+.btn-secondary {
+  background: var(--surface-2);
+  border-color: transparent;
   color: var(--text);
-  border: 1px solid var(--input-border);
-  border-radius: 8px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.form-control::placeholder, textarea::placeholder {
-  color: var(--muted);
-}
-
-.form-control:focus, textarea:focus {
+.btn-secondary:hover {
+  background: var(--surface-2);
   border-color: var(--accent);
-  box-shadow: 0 0 0 0.2rem rgba(13, 148, 136, 0.15);
+  color: var(--text);
 }
+
+.btn-outline-primary { color: var(--accent); border-color: var(--accent); }
+.btn-outline-primary:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.btn-outline-secondary { color: var(--muted); border-color: var(--border); }
+.btn-outline-secondary:hover {
+  background: var(--surface-2);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.btn-outline-success { color: #19A87A; border-color: var(--mint); }
+.btn-outline-success:hover { background: var(--mint); border-color: var(--mint); color: #0C3A2A; }
+
+.btn-outline-danger { color: #D94A6A; border-color: #F0A8B8; }
+.btn-outline-danger:hover { background: #D94A6A; border-color: #D94A6A; color: #fff; }
+
+.btn-light { background: #fff; border-color: #fff; color: var(--purple); }
+
+/* =========================================================================
+   FORMS — underlined single-line inputs, soft surface for textareas
+   ========================================================================= */
 
 .form-label {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.01em;
+}
+
+input.form-control,
+input.form-control:focus {
+  background: var(--input-bg);
+  border: none;
+  border-bottom: 2px solid var(--input-border);
+  border-radius: 0;
+  box-shadow: none;
   color: var(--text);
+  padding-inline: 0.15rem;
+  transition: border-color var(--dur) var(--ease);
+}
+
+input.form-control:focus { border-bottom-color: var(--accent); }
+
+textarea.form-control,
+select.form-select {
+  background: var(--surface-2);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+textarea.form-control:focus,
+select.form-select:focus {
+  background: var(--surface);
+  border-color: var(--accent);
+  box-shadow: none;
+  color: var(--text);
+}
+
+.form-control::placeholder { color: var(--muted); opacity: 0.75; }
+
+/* file input */
+input[type="file"].form-control {
+  border-bottom: 2px dashed var(--input-border);
+  font-size: 0.85rem;
+}
+
+/* search gets the lavender pill treatment */
+#searchInput {
+  background: var(--surface-2);
+  border: 2px solid transparent;
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 1rem;
+}
+
+#searchInput:focus {
+  border-color: var(--accent);
+  background: var(--surface);
 }
 
 .field-hint {
   font-size: 0.72rem;
   color: var(--muted);
-  margin: 2px 0 6px;
+  margin: 0.15rem 0 0.3rem;
+  line-height: 1.45;
 }
 
 .field-hint code {
+  background: var(--surface-2);
   color: var(--accent);
-  background: transparent;
+  padding: 0.05rem 0.3rem;
+  border-radius: 5px;
+  font-size: 0.95em;
 }
 
-/* =========================================
-   LEFT PANEL CARD (app panel)
-========================================= */
+/* dark-mode switch */
+.form-check-input {
+  background-color: var(--border);
+  border-color: var(--border);
+  cursor: pointer;
+}
+
+.form-check-input:checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.form-check-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(216, 100, 232, 0.25);
+}
+
+.form-check-label { color: var(--muted); font-weight: 500; }
+
+/* =========================================================================
+   SURFACES — cards and panels
+   ========================================================================= */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text);
+}
 
 .app-panel {
-  border-radius: 14px;
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  padding: 1.25rem !important;
+  border: 1px solid var(--border);
+  animation: riseIn var(--dur-slow) var(--ease) both;
 }
 
-.app-panel > .mb-2 {
-  padding-bottom: 0.75rem;
-  margin-bottom: 0.9rem !important;
-  border-bottom: 1px solid var(--panel-border);
+.app-panel > .mb-2 { margin-bottom: 0.85rem !important; }
+
+.auth-card {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  animation: riseIn var(--dur-slow) var(--ease) both;
 }
 
-.app-panel > .mb-2:last-of-type {
-  border-bottom: none;
+.auth-card h3 { font-size: 1.75rem; margin-bottom: 1.25rem !important; }
+.auth-card .btn-primary { padding-block: 0.6rem; font-size: 1rem; }
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
 }
 
-.mic-btn {
-  flex-shrink: 0;
-  border-radius: 50% !important;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
+/* =========================================================================
+   NOTE CARDS — staggered entrance
+   ========================================================================= */
+
+#notesList > [data-note-id] {
+  animation: cardIn var(--dur-slow) var(--ease) both;
 }
 
-/* Applied to the mic button and the read-aloud button while actively listening/speaking */
-.btn-live-pulse {
-  animation: pulse 1.2s ease-in-out infinite;
-}
+/* stagger: each card starts a beat after the one before it */
+#notesList > [data-note-id]:nth-child(1)  { animation-delay: 0ms; }
+#notesList > [data-note-id]:nth-child(2)  { animation-delay: 45ms; }
+#notesList > [data-note-id]:nth-child(3)  { animation-delay: 90ms; }
+#notesList > [data-note-id]:nth-child(4)  { animation-delay: 135ms; }
+#notesList > [data-note-id]:nth-child(5)  { animation-delay: 180ms; }
+#notesList > [data-note-id]:nth-child(6)  { animation-delay: 225ms; }
+#notesList > [data-note-id]:nth-child(7)  { animation-delay: 270ms; }
+#notesList > [data-note-id]:nth-child(8)  { animation-delay: 315ms; }
+#notesList > [data-note-id]:nth-child(n+9) { animation-delay: 360ms; }
 
-@keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5); }
-  70%  { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(22px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
 }
-
-/* =========================================
-   NOTE CARDS (colorful sticky notes)
-========================================= */
 
 .note-card {
-  border-radius: 12px;
-  padding: 6px;
-  border: 2px solid transparent;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  animation: fadeInUp 0.35s ease both;
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .note-card { animation: none; }
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  overflow: hidden;
 }
 
 .note-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0px 4px 16px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
 }
 
-.note-card .card-body {
-  padding-bottom: 0.5rem;
+/* Note backgrounds come from the database as light pastels, so the ink stays
+   dark in both themes — inheriting var(--text) would make dark-mode text
+   white on a pale card. */
+.note-card,
+.note-card .card-title,
+.note-card .card-text,
+.note-card .note-content,
+.note-card .card-body { color: var(--note-ink); }
+
+.note-card .card-body { padding: 1rem 1.05rem; }
+
+.note-card .card-footer {
+  background: rgba(255, 255, 255, 0.55);
+  border-top: 1px solid rgba(36, 29, 50, 0.08);
+  padding: 0.55rem 0.7rem;
 }
 
-/* Tags */
-.note-card .badge {
-  background: #555 !important;
-  font-size: 0.65rem;
-  opacity: 0.85;
-}
-
-/* Edit/Delete buttons */
 .note-card button {
-  border-radius: 6px;
-}
-
-/* =========================================
-   COLOR PICKER CIRCLES
-========================================= */
-
-.color-circle {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid var(--panel-border);
-  cursor: pointer;
-  transition: 0.15s ease;
-}
-
-.color-circle:hover {
-  transform: scale(1.15);
-}
-
-.color-circle.selected {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.25);
-  animation: pop 0.3s ease;
-}
-
-@keyframes pop {
-  0%   { transform: scale(1); }
-  45%  { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
-
-/* =========================================
-   EMOJI PICKER
-========================================= */
-
-.emoji-option {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: 0.15s ease;
-}
-
-.emoji-option:hover {
-  transform: scale(1.15);
-  background: rgba(13, 148, 136, 0.08);
-}
-
-.emoji-option.selected {
-  border-color: var(--accent);
-  background: rgba(13, 148, 136, 0.12);
-  animation: pop 0.3s ease;
-}
-
-/* =========================================
-   NOTE CONTENT (rendered Markdown)
-========================================= */
-
-.note-content p:last-child {
-  margin-bottom: 0;
-}
-
-.note-content ul {
-  padding-left: 1.2rem;
-  margin-bottom: 0.5rem;
-}
-
-.note-content li.task-list-item {
-  list-style: none;
-  margin-left: -1.2rem;
-}
-
-.note-content a[href^="#note-link:"] {
-  color: var(--accent-hover);
-  font-weight: 600;
-  text-decoration: underline dotted;
+  border-radius: var(--radius-pill);
+  font-size: 0.74rem;
+  padding: 0.22rem 0.7rem;
+  border-width: 1.5px;
 }
 
 .note-meta {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
+  color: rgba(36, 29, 50, 0.6) !important;
+  font-weight: 500;
 }
+
+/* =========================================================================
+   BADGES
+   ========================================================================= */
+
+.badge {
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.3em 0.7em;
+}
+
+.note-card .bg-secondary { background: var(--purple) !important; color: #fff; }
+.note-card .bg-danger { background: #E8537A !important; }
+.note-card .bg-warning { background: var(--yellow) !important; color: #4A3708 !important; }
+.note-card .bg-info { background: var(--blue) !important; color: #fff !important; }
 
 .shared-badge {
-  background: #7952b3 !important;
-  color: #fff;
+  background: var(--mint);
+  color: #0C3A2A;
 }
 
-.attachment-thumb {
-  width: 64px;
-  height: 64px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+/* =========================================================================
+   COLOUR + EMOJI PICKERS
+   ========================================================================= */
+
+.color-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--border);
+  transition: transform var(--dur-fast) var(--ease),
+              box-shadow var(--dur) var(--ease);
 }
 
-/* =========================================
-   AUTH PAGES (login / signup)
-========================================= */
+.color-circle:hover { transform: scale(1.18) rotate(-6deg); }
 
-.auth-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border) !important;
-  border-radius: 16px;
-  animation: fadeInUp 0.5s ease both;
+.color-circle.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(216, 100, 232, 0.35);
+  transform: scale(1.12);
 }
 
-.auth-card .btn-primary {
-  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3);
+.emoji-option {
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.22rem 0.3rem;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  transition: transform var(--dur-fast) var(--ease),
+              background var(--dur) var(--ease);
 }
 
-.auth-card a {
-  color: var(--accent);
+.emoji-option:hover { transform: scale(1.2) translateY(-2px); background: var(--surface-2); }
+
+.emoji-option.selected {
+  border-color: var(--accent);
+  background: var(--surface-2);
+  transform: scale(1.1);
+}
+
+/* =========================================================================
+   MIC BUTTON
+   ========================================================================= */
+
+.mic-btn { border-radius: 50%; width: 34px; height: 34px; padding: 0; line-height: 1; }
+
+.btn-live-pulse { animation: livePulse 1.3s ease-in-out infinite; }
+
+@keyframes livePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232, 83, 122, 0.55); }
+  50%      { box-shadow: 0 0 0 9px rgba(232, 83, 122, 0); }
+}
+
+/* =========================================================================
+   NOTE CONTENT — markdown, checklists, links
+   ========================================================================= */
+
+.note-content { line-height: 1.6; font-size: 0.86rem; }
+.note-content p:last-child { margin-bottom: 0; }
+.note-content ul, .note-content ol { padding-left: 1.15rem; margin-bottom: 0.4rem; }
+.note-content code {
+  background: rgba(91, 45, 145, 0.1);
+  color: var(--purple-600);
+  padding: 0.05rem 0.3rem;
+  border-radius: 5px;
+}
+.note-content blockquote {
+  border-left: 3px solid var(--magenta);
+  padding-left: 0.65rem;
+  margin: 0.4rem 0;
+  color: rgba(36, 29, 50, 0.72);
+}
+
+.note-content li.task-list-item { list-style: none; margin-left: -1rem; }
+
+.note-content a[href^="#note-link:"] {
+  color: var(--purple);
   font-weight: 600;
+  border-bottom: 1.5px dashed var(--magenta);
   text-decoration: none;
 }
 
-.auth-card a:hover {
-  text-decoration: underline;
+.note-content a[href^="#note-link:"]:hover { background: rgba(216, 100, 232, 0.14); }
+
+/* custom checkbox with a drawn tick */
+.note-content input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 17px;
+  height: 17px;
+  border: 2px solid rgba(36, 29, 50, 0.3);
+  border-radius: 6px;
+  vertical-align: -3px;
+  margin-right: 0.4rem;
+  cursor: pointer;
+  position: relative;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
 
-/* =========================================
-   SEARCH BAR
-========================================= */
-
-#searchInput {
-  border-radius: 20px;
-  padding-left: 14px;
+.note-content input[type="checkbox"]:checked {
+  background: var(--mint);
+  border-color: var(--mint);
 }
 
-/* =========================================
-   DARK MODE OVERRIDES
-========================================= */
-
-/* Note cards always keep their pastel/light background so the colored
-   sticky-note identity stays readable regardless of app theme */
-.note-card,
-.note-card .card-title,
-.note-card .card-text {
-  color: #222 !important;
+.note-content input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  left: 4.5px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid #0C3A2A;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg) scale(0);
+  transform-origin: center;
 }
 
-body.dark-mode .note-card {
-  border-color: var(--panel-border);
+.note-content input[type="checkbox"]:checked::after {
+  animation: drawCheck var(--dur) var(--ease) forwards;
 }
 
-body.dark-mode .modal-content {
-  background: var(--panel-bg);
-  color: var(--text);
-  border: 1px solid var(--panel-border);
+@keyframes drawCheck {
+  0%   { transform: rotate(45deg) scale(0); opacity: 0; }
+  60%  { transform: rotate(45deg) scale(1.25); opacity: 1; }
+  100% { transform: rotate(45deg) scale(1); opacity: 1; }
 }
 
-body.dark-mode .modal-header,
-body.dark-mode .modal-footer {
-  border-color: var(--panel-border);
+.attachment-thumb {
+  width: 58px;
+  height: 58px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 2px solid rgba(36, 29, 50, 0.1);
+  transition: transform var(--dur) var(--ease);
 }
 
-body.dark-mode .btn-close {
-  filter: invert(1);
+.attachment-thumb:hover { transform: scale(1.1); }
+
+/* =========================================================================
+   PROGRESS BAR — animated fill
+   ========================================================================= */
+
+.np-progress {
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
 }
 
-body.dark-mode .btn-outline-danger {
-  border-color: #ff9c9c;
-  color: #ff9c9c;
+.np-progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--mint), var(--yellow));
+  transition: width var(--dur-slow) var(--ease);
 }
 
-body.dark-mode .btn-outline-danger:hover {
-  background: #ff9c9c;
-  color: #000;
-}
-
-body.dark-mode .btn-outline-secondary {
-  border-color: var(--input-border);
-  color: var(--text);
-}
-
-body.dark-mode .btn-secondary {
-  background: #343a4a;
-  border-color: #343a4a;
-}
-
-/* =========================================
-   SMALL UI DETAILS
-========================================= */
-
-#noteMsg {
+.np-progress-label {
+  font-size: 0.72rem;
   font-weight: 600;
+  color: var(--muted);
+}
+
+/* =========================================================================
+   TIMELINE LIST
+   ========================================================================= */
+
+.timeline { position: relative; padding-left: 1.5rem; }
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: linear-gradient(var(--magenta), var(--purple));
+  border-radius: 2px;
+}
+
+.timeline-item { position: relative; padding-bottom: 1rem; }
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -1.5rem;
+  top: 5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 3px solid var(--purple);
+}
+
+.timeline-item.done::before { background: var(--mint); border-color: var(--mint); }
+
+/* =========================================================================
+   SKELETON LOADERS
+   ========================================================================= */
+
+.skeleton {
+  background: linear-gradient(
+    90deg, var(--surface-2) 25%, var(--border) 37%, var(--surface-2) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  color: transparent !important;
+}
+
+.skeleton-line { height: 12px; margin-bottom: 0.5rem; }
+.skeleton-card { height: 128px; border-radius: var(--radius); }
+
+@keyframes shimmer {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* =========================================================================
+   MODALS
+   ========================================================================= */
+
+.modal-content {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header, .modal-footer { border-color: var(--border); }
+.modal-title { font-weight: 700; }
+body.dark-mode .btn-close { filter: invert(1) grayscale(1) brightness(1.8); }
+
+.modal-body .border {
+  border-color: var(--border) !important;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+/* =========================================================================
+   PWA — banners and install button
+   ========================================================================= */
+
+.pwa-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: calc(100vw - 32px);
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-pill);
+  background: var(--purple);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: riseIn var(--dur) var(--ease) both;
+}
+
+.pwa-banner-offline { background: var(--blue); }
+.pwa-banner-error { background: #C0395C; }
+
+.install-fab {
+  position: fixed;
+  right: 16px;
+  bottom: 18px;
+  z-index: 1080;
+  background: var(--magenta);
+  border-color: var(--magenta);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  animation: addPulse 2.6s ease-in-out infinite;
+}
+
+.install-fab:hover { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+@keyframes addPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(216, 100, 232, 0.5), var(--shadow-lg); }
+  50%      { box-shadow: 0 0 0 14px rgba(216, 100, 232, 0), var(--shadow-lg); }
+}
+
+/* =========================================================================
+   PAGE TRANSITION
+   ========================================================================= */
+
+main, .container { animation: pageIn var(--dur-slow) var(--ease) both; }
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* =========================================================================
+   RESPONSIVE
+   ========================================================================= */
+
+@media (max-width: 575.98px) {
+  h3 { font-size: 1.4rem; }
+  .note-card .card-footer { gap: 0.35rem; }
+  .note-card button { font-size: 0.7rem; padding: 0.2rem 0.55rem; }
+  .bg-blob { width: 300px; height: 300px; }
+  #searchInput { width: 100% !important; }
+}
+
+/* =========================================================================
+   REDUCED MOTION — honour the OS preference everywhere
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .btn:hover,
+  .note-card:hover,
+  .color-circle:hover,
+  .emoji-option:hover,
+  .attachment-thumb:hover { transform: none; }
 }
