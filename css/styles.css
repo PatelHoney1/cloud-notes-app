@@ -1081,6 +1081,16 @@ main, .container { animation: pageIn var(--dur-slow) var(--ease) both; }
   background: rgba(255, 255, 255, 0.14);
   animation: driftBlob 20s ease-in-out infinite;
   will-change: transform;
+  /* Purely decorative, and it covers the top-right corner of the header --
+     without this it silently swallowed every click on the settings gear, the
+     folder export button and the editor's action buttons. */
+  pointer-events: none;
+}
+
+/* Keep the header's real content above the decoration regardless. */
+.app-top > * {
+  position: relative;
+  z-index: 1;
 }
 
 .app-top h1, .app-top h2, .app-top h4 { color: #fff; margin: 0; }
@@ -1102,12 +1112,22 @@ main, .container { animation: pageIn var(--dur-slow) var(--ease) both; }
 .back-link {
   color: #fff;
   font-weight: 600;
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.3rem;
   opacity: 0.9;
+  /* 44px is the smallest reliably tappable target on a phone. */
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.35rem;
+  margin: -0.35rem;
+  border-radius: var(--radius-sm);
+  transition: background var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
+
+.back-link:active { background: rgba(255, 255, 255, 0.18); }
 
 .back-link:hover { color: #fff; opacity: 1; text-decoration: none; }
 

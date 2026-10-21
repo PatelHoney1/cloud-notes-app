@@ -13,7 +13,7 @@
  * drops every older cache.
  */
 
-const CACHE_VERSION = "v4";
+const CACHE_VERSION = "v5";
 const CACHE = `cloud-notes-${CACHE_VERSION}`;
 
 // Same-origin files that make up the app shell.
